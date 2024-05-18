@@ -1,0 +1,43 @@
+name: Validations
+
+run-name: Validations started by @${{ github.actor }}
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      node-version:
+        description: "Node.js version"
+        required: true
+        default: '["18.x", "20.x"]'
+        type: "string"
+
+jobs:
+  validations:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ${{ fromJson(needs.validations.parameters.node-versions) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run the tests
+        run: npm run test
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run build
+        run: npm run build
