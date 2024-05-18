@@ -3,10 +3,8 @@ name: Validations
 run-name: Validations started by @${{ github.actor }}
 
 on:
-  pull_request:
-    branches:
-      - main
-      - develop
+  repository_dispatch:
+    types: [validations]
   workflow_dispatch:
     inputs:
       node-version:
