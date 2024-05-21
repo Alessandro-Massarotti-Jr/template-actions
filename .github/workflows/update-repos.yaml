@@ -37,7 +37,7 @@ jobs:
           REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
           for repo in $REPOSITORIES; do 
             git clone $repo
-            cp -r .github/actions/* $repo/.github/workflows
+            cp -r .github/actions/* $repo/.github/workflows/
             cd $repo
             git config --global user.email "alemassajr@hotmail.com"
             git config --global user.name "Alessandro-Massarotti-Jr"
