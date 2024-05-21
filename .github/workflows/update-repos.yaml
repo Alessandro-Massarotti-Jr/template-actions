@@ -15,9 +15,7 @@ jobs:
 
       - name: List all repositories
         run: |
-          ORG_NAME="Alessandro-Massarotti-Jr"
-          TOKEN="${{ secrets.GITHUB_TOKEN }}"
-          REPOSITORIES=$(curl -s -H "Authorization: token $TOKEN" https://api.github.com/orgs/$ORG_NAME/repos | jq -r '.[] | .ssh_url')
+          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/orgs/${{secrets.GIT_ORG_NAME}}/repos | jq -r '.[] | .ssh_url')
 
       - name: Update workflows in repositories
         run: |
