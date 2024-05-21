@@ -15,7 +15,7 @@ jobs:
 
       - name: List all repositories
         run: |
-          ORG_NAME="your-organization-name"
+          ORG_NAME="Alessandro-Massarotti-Jr"
           TOKEN="${{ secrets.GITHUB_TOKEN }}"
           REPOSITORIES=$(curl -s -H "Authorization: token $TOKEN" https://api.github.com/orgs/$ORG_NAME/repos | jq -r '.[] | .ssh_url')
 
@@ -23,12 +23,12 @@ jobs:
         run: |
           for repo in $REPOSITORIES; do
             git clone $repo
-            cp -r .github/workflows/* $repo/.github/workflows
+            cp -r .github/actions/* $repo/.github/workflows
             cd $repo
             git config --global user.email "github-actions-bot@example.com"
             git config --global user.name "GitHub Actions Bot"
             git add .
-            git commit -m "Update workflows"
+            git commit -m "Build: bot update workflows"
             git push
             cd ..
             rm -rf $repo
