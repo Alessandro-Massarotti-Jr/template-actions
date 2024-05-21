@@ -29,6 +29,12 @@ jobs:
         run: |
           REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
 
+      - name: TTT
+        run: |
+          for repo in $REPOSITORIES; do
+             echo $repo
+          done
+
       - name: Update workflows in repositories
         run: |
           for repo in $REPOSITORIES; do
