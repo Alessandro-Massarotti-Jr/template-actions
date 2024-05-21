@@ -13,42 +13,42 @@ jobs:
       - name: Checkout actions repository
         uses: actions/checkout@v2
 
-      - name: Org repos
+      - name: Get Repositories
         run: |
-          curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/orgs/${{secrets.GIT_ORG_NAME}}/repos
+          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" "https://api.github.com/user/repos" | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
 
-      - name: User Repos
+      - name: Print Repositories
         run: |
-          curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos
-
-      - name: Filtered repos
-        run: |
-          curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url'
-
-      - name: List all repositories
-        run: |
-          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
-      - name: aaa
-        run: |
-          echo $REPOSITORIES
-
-      - name: TTT
-        run: |
-          for repo in $REPOSITORIES; do
-          echo $repo
-          done
+          echo "$REPOSITORIES"
 
       - name: Update workflows in repositories
         run: |
           for repo in $REPOSITORIES; do
-            git clone $repo
-            cp -r .github/actions/* $repo/.github/workflows
-            cd $repo
+            echo "Cloning repository: $repo"
+            git clone $repo || { echo "Error cloning repository: $repo"; exit 1; }
+
+            echo "Copying workflows to repository: $repo"
+            cp -r .github/actions/* "$(basename $repo)/.github/workflows" || { echo "Error copying workflows to repository: $repo"; exit 1; }
+
+            echo "Accessing repository directory: $repo"
+            cd "$(basename $repo)" || { echo "Error accessing repository directory: $repo"; exit 1; }
+
+            echo "Configuring user email for commits"
             git config --global user.email "github-actions-bot@example.com"
             git config --global user.name "GitHub Actions Bot"
-            git add .
-            git commit -m "Build: bot update workflows"
-            git push
-            cd ..
-            rm -rf $repo
+
+            echo "Adding changes to commit"
+            git add . || { echo "Error adding changes to commit: $repo"; exit 1; }
+
+            echo "Committing changes"
+            git commit -m "Build: bot update workflows" || { echo "Error committing changes: $repo"; exit 1; }
+
+            echo "Pushing changes"
+            git push || { echo "Error pushing changes: $repo"; exit 1; }
+
+            echo "Returning to previous directory"
+            cd .. || { echo "Error returning to previous directory: $repo"; exit 1; }
+
+            echo "Removing cloned repository: $repo"
+            rm -rf "$(basename $repo)" || { echo "Error removing cloned repository: $repo"; exit 1; }
           done
