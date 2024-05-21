@@ -17,6 +17,13 @@ jobs:
       - name: Checkout actions repository
         uses: actions/checkout@v2
 
+      - name: add ssh
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_SECRET}}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
       - name: User Repos
         run: |
           curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos
@@ -32,8 +39,8 @@ jobs:
             git clone $repo
             cp -r .github/actions/* $repo/.github/workflows
             cd $repo
-            git config --global user.email "github-actions-bot@example.com"
-            git config --global user.name "GitHub Actions Bot"
+            git config --global user.email "alemassajr@hotmail.com"
+            git config --global user.name "Alessandro-Massarotti-Jr"
             git add .
             git commit -m "Build: bot update workflows"
             git push
