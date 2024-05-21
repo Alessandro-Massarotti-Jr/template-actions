@@ -13,13 +13,13 @@ jobs:
       - name: Checkout actions repository
         uses: actions/checkout@v2
 
-      - name: Curl
+      - name: Org repos
         run: |
           curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/orgs/${{secrets.GIT_ORG_NAME}}/repos
 
       - name: List all repositories
         run: |
-          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/orgs/${{secrets.GIT_ORG_NAME}}/repos | jq -r '.[] | .ssh_url')
+          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
 
       - name: Update workflows in repositories
         run: |
