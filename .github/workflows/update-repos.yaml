@@ -1,5 +1,7 @@
 name: Update Repositories
 
+run-name: Update directories action started by ${{github.actor}}
+
 on:
   push:
     branches:
