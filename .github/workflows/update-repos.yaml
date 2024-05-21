@@ -35,7 +35,7 @@ jobs:
       - name: TTT
         run: |
           for repo in $REPOSITORIES; do
-             echo $repo
+          echo $repo
           done
 
       - name: Update workflows in repositories
