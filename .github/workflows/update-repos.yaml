@@ -13,6 +13,10 @@ jobs:
       - name: Checkout actions repository
         uses: actions/checkout@v2
 
+      - name: Curl
+        run: |
+          curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/orgs/${{secrets.GIT_ORG_NAME}}/repos
+
       - name: List all repositories
         run: |
           REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/orgs/${{secrets.GIT_ORG_NAME}}/repos | jq -r '.[] | .ssh_url')
