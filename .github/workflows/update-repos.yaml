@@ -29,15 +29,6 @@ jobs:
         run: |
           REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
           for repo in $REPOSITORIES; do 
-            echo $repo 
-          done
-      - name: aaa
-        run: |
-          echo "$REPOSITORIES"
-
-      - name: Update workflows in repositories
-        run: |
-          for repo in $REPOSITORIES; do
             git clone $repo
             cp -r .github/actions/* $repo/.github/workflows
             cd $repo
