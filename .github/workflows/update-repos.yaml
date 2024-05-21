@@ -46,9 +46,11 @@ jobs:
             cd cloned
             git config --global user.email "alemassajr@hotmail.com"
             git config --global user.name "Alessandro-Massarotti-Jr"
-            git add .
-            git commit -m "Build: bot update workflows"
-            git push
+            if ! git diff --quiet --exit-code; then
+              git add .
+              git commit -m "Build: bot update workflows"
+              git push origin main
+            fi
             cd ..
             rm -rf cloned
           done
