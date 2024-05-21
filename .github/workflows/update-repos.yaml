@@ -1,0 +1,35 @@
+name: Update Repositories
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout actions repository
+        uses: actions/checkout@v2
+
+      - name: List all repositories
+        run: |
+          ORG_NAME="your-organization-name"
+          TOKEN="${{ secrets.GITHUB_TOKEN }}"
+          REPOSITORIES=$(curl -s -H "Authorization: token $TOKEN" https://api.github.com/orgs/$ORG_NAME/repos | jq -r '.[] | .ssh_url')
+
+      - name: Update workflows in repositories
+        run: |
+          for repo in $REPOSITORIES; do
+            git clone $repo
+            cp -r .github/workflows/* $repo/.github/workflows
+            cd $repo
+            git config --global user.email "github-actions-bot@example.com"
+            git config --global user.name "GitHub Actions Bot"
+            git add .
+            git commit -m "Update workflows"
+            git push
+            cd ..
+            rm -rf $repo
+          done
