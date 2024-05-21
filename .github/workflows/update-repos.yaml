@@ -7,7 +7,7 @@ on:
 
 defaults:
   run:
-    shell: shell --noprofile --norc -exo -x -e pipefail {0}
+    shell: --noprofile --norc -exo -x -e pipefail {0}
 
 jobs:
   update:
