@@ -34,14 +34,10 @@ jobs:
         run: |
           REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN  }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
           for repo in $REPOSITORIES; do 
-            git clone $repo cloned
+            git clone $repo cloned -b develop
             if [ ! -d "cloned/.github/workflows" ]; then
               mkdir -p cloned/.github/workflows
             fi
-            cd cloned
-            git checkout develop
-            git pull
-            cd ../
             cp -r .github/actions/* cloned/.github/workflows
             cd cloned
             if ! git diff --quiet --exit-code; then
