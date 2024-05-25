@@ -44,7 +44,7 @@ jobs:
             git status
             if ! git diff --cached --quiet --exit-code; then
               git commit -m "build(github): bot update repository workflows"
-              git push origin develop
+              git push
             else
               echo "No changes detected by git diff --cached"
             fi
