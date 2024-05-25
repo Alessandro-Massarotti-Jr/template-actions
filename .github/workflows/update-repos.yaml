@@ -25,11 +25,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      - name: Set up Git
-        run: |
-          git config --global user.email "alemassajr@hotmail.com"
-          git config --global user.name "Alessandro-Massarotti-Jr"
-
       - name: List all repositories
         run: |
           REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN  }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
@@ -38,8 +33,10 @@ jobs:
             if [ ! -d "cloned/.github/workflows" ]; then
               mkdir -p cloned/.github/workflows
             fi
-            cp -r .github/actions/pull-request-openner.yaml cloned/.github/workflows
+            cp -r .github/actions/* cloned/.github/workflows
             cd cloned
+            git config --global user.email "alemassajr@hotmail.com"
+            git config --global user.name "Alessandro-Massarotti-Jr"
             if ! git diff --quiet --exit-code; then
               git add .
               git commit -m "Build(github): bot update workflows"
