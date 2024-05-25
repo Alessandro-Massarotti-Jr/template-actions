@@ -32,7 +32,7 @@ jobs:
 
       - name: List all repositories
         run: |
-          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN  }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
+          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN  }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
           for repo in $REPOSITORIES; do 
             git clone $repo cloned
             if [ ! -d "cloned/.github/workflows" ]; then
