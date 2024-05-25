@@ -18,21 +18,15 @@ jobs:
     steps:
       - name: Checkout actions repository
         uses: actions/checkout@v2
-      - name: set up ssh key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_SECRET }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Set up Git
         run: |
-          git config --global user.email "alemassajr@hotmail.com"
-          git config --global user.name "Alessandro-Massarotti-Jr"
+          git config --global user.email "actios@github.com"
+          git config --global user.name "bot"
 
       - name: List all repositories
         run: |
-          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN  }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
+          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN  }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
           for repo in $REPOSITORIES; do 
             git clone $repo cloned -b develop
             if [ ! -d "cloned/.github/workflows" ]; then
