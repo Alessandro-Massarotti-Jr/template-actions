@@ -40,11 +40,16 @@ jobs:
             fi
             cp -r .github/actions/* cloned/.github/workflows
             cd cloned
-            git checkout develop
+            if git show-ref --quiet refs/heads/develop; then
+              git checkout develop
+            else
+              git checkout -b develop main
+              git push origin develop
+            fi
             if ! git diff --quiet --exit-code; then
               git add .
               git commit -m "Build(github): bot update workflows"
-              git push origin main
+              git push origin develop
             fi
             cd ..
             rm -rf cloned
