@@ -39,12 +39,7 @@ jobs:
               mkdir -p cloned/.github/workflows
             fi
             cd cloned
-            if git show-ref --quiet refs/heads/develop; then
-              git checkout develop
-            else
-              git checkout -b develop
-              git push origin develop
-            fi
+            git checkout develop
             git pull
             cd ../
             cp -r .github/actions/* cloned/.github/workflows
