@@ -45,6 +45,9 @@ jobs:
             if ! git diff --cached --quiet --exit-code; then
               git commit -m "build(github): bot update repository workflows"
               git push
+              git pull
+              git rebase origin/main
+              git push --force-with-lease
             else
               echo "No changes detected by git diff --cached"
             fi
