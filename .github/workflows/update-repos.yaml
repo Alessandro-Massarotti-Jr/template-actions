@@ -26,17 +26,14 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      - name: User Repos
+      - name: Set up Git
         run: |
-          curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos
-
-      - name: Filtered repos
-        run: |
-          curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url'
+          git config --global user.email "actions@github.com"
+          git config --global user.name "bot"
 
       - name: List all repositories
         run: |
-          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
+          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN  }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("gym-api")) | .ssh_url')
           for repo in $REPOSITORIES; do 
             git clone $repo cloned
             if [ ! -d "cloned/.github/workflows" ]; then
@@ -44,11 +41,10 @@ jobs:
             fi
             cp -r .github/actions/* cloned/.github/workflows
             cd cloned
-            git config --global user.email "alemassajr@hotmail.com"
-            git config --global user.name "Alessandro-Massarotti-Jr"
+            git checkout develop
             if ! git diff --quiet --exit-code; then
               git add .
-              git commit -m "Build: bot update workflows"
+              git commit -m "Build(github): bot update workflows"
               git push origin main
             fi
             cd ..
