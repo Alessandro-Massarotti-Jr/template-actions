@@ -33,7 +33,10 @@ jobs:
       - name: Update Repositories actions
         run: |
           REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN  }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
-          for repo in $REPOSITORIES; do 
+          for repo in $REPOSITORIES; do
+           (
+            set -e 
+            trap 'echo "Erro ao processar o repositório $repo"; exit 1' ERR 
             git clone $repo cloned -b develop
             if [ ! -d "cloned/.github/workflows" ]; then
               mkdir -p cloned/.github/workflows
@@ -53,4 +56,8 @@ jobs:
             fi
             cd ..
             rm -rf cloned
+            ) || {
+               echo "Falha ao atualizar o repositório $repo"
+               continue
+            }
           done
