@@ -34,7 +34,11 @@ jobs:
         id: get-repos
         run: |
           REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
-          echo "::set-output name=repos::$REPOSITORIES"
+          echo "repos=$REPOSITORIES" >> $GITHUB_OUTPUT
+
+      - name: Get template-project repositories
+        id: teste
+        run: echo ${{ steps.get-repos.outputs.repos }}
 
       - name: Process each repository
         id: process-repos
@@ -78,7 +82,7 @@ jobs:
               continue
             }
           done
-          echo "::set-output name=errors::$ERRORS"
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
 
       - name: Display errors
         if: steps.process-repos.outputs.errors != ''
