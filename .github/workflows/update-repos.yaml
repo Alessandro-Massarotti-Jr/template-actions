@@ -30,9 +30,10 @@ jobs:
         id: get-repos
         run: |
           PAGE=1
+          PER_PAGE=100
           REPOSITORIES=""
           while true; do
-            REPOS_PAGE=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" "https://api.github.com/user/repos?page=$PAGE" | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
+            REPOS_PAGE=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" "https://api.github.com/user/repos?per_page=$PER_PAGE&page=$PAGE" | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
             if [ -z "$REPOS_PAGE" ]; then
               break
             fi
