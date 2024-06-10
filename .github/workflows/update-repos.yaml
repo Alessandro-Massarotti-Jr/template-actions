@@ -44,13 +44,6 @@ jobs:
           echo "repos=$REPOSITORIES_JSON" >> "$GITHUB_ENV"
           echo "repos=$REPOSITORIES_JSON" >> "$GITHUB_OUTPUT"
 
-  debug-repos-output:
-    needs: get-repos
-    runs-on: ubuntu-latest
-    steps:
-      - name: Debug Repos Output
-        run: echo "Repos Output ${{ steps.get-repos.outputs }}"
-
   update-repo:
     needs: get-repos
     runs-on: ubuntu-latest
