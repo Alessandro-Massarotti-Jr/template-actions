@@ -30,7 +30,7 @@ jobs:
         id: export-repos
         run: |
           REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
-          REPOSITORIES_JSON=$(echo "$REPOSITORIES" | jq -cR '[split("\n") | .[] | select(. != "")]')
+          REPOSITORIES_JSON=$(echo "$REPOSITORIES" | jq -cR '[split(" ") | .[] | select(. != "")]')
           echo "::set-output name=repos::$REPOSITORIES_JSON"
 
   update-repos:
