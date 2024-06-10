@@ -29,8 +29,17 @@ jobs:
       - name: Get template-project repositories
         id: get-repos
         run: |
-          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
-          REPOSITORIES_JSON=$(echo "$REPOSITORIES" | jq -cRs '[split("\n") | .[] | select(. != "")]')
+          PAGE=1
+          REPOSITORIES=""
+          while true; do
+            REPOS_PAGE=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" "https://api.github.com/user/repos?page=$PAGE" | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
+            if [ -z "$REPOS_PAGE" ]; then
+              break
+            fi
+            REPOSITORIES="$REPOSITORIES$REPOS_PAGE"$'\n'
+            PAGE=$((PAGE+1))
+          done
+          REPOSITORIES_JSON=$(echo "$REPOSITORIES" | jq -cRs 'split("\n") | .[:-1]')
           echo "repos=$REPOSITORIES_JSON" >> "$GITHUB_ENV"
           echo "repos=$REPOSITORIES_JSON" >> "$GITHUB_OUTPUT"
 
