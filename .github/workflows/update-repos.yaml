@@ -37,9 +37,11 @@ jobs:
   update-repos:
     needs: get-repos
     runs-on: ubuntu-latest
+    env:
+      REPOS: ${{ needs.get-repos.outputs.repos }}
     strategy:
       matrix:
-        repo: ${{ needs.get-repos.outputs.repos }}
+        repo: ${{ github.env.REPOS }}
     steps:
       - name: Checkout actions repository
         uses: actions/checkout@v2
