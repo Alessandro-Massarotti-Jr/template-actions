@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Debug Repos Output
-        run: echo "Repos Output ${{ steps.get-repos.outputs.repos }}"
+        run: echo "Repos Output ${{ steps.get-repos.outputs }}"
 
   update-repos:
     needs: get-repos
