@@ -47,6 +47,7 @@ jobs:
   update-repo:
     needs: get-repos
     runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
       matrix:
         repo: ${{ fromJson(needs.get-repos.outputs.repos) }}
