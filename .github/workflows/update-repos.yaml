@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        repo: ${{ fromJson(needs.get-repos.outputs.repos) }}
+        repo: ${{ needs.get-repos.outputs.repos }}
     steps:
       - name: Checkout actions repository
         uses: actions/checkout@v2
