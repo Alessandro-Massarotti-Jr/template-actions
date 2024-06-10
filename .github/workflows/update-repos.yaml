@@ -27,7 +27,7 @@ jobs:
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Get template-project repositories
-        id: export-repos
+        id: get-repos
         run: |
           REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
           REPOSITORIES_JSON=$(echo "$REPOSITORIES" | jq -cRs '[split("\n") | .[] | select(. != "")]')
