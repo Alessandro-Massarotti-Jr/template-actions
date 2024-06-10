@@ -30,34 +30,57 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "bot"
 
-      - name: Update Repositories actions
+      - name: Get template-project repositories
+        id: get-repos
         run: |
-          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN  }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
-          for repo in $REPOSITORIES; do
-           (
-            set -e 
-            trap 'echo "Erro ao processar o repositório $repo"; exit 1' ERR 
-            git clone $repo cloned -b develop
-            if [ ! -d "cloned/.github/workflows" ]; then
-              mkdir -p cloned/.github/workflows
-            fi
-            cp -r .github/actions/* cloned/.github/workflows
-            cd cloned
-            git add .
-            git status
-            if ! git diff --cached --quiet --exit-code; then
-              git commit -m "build(github): bot update repository workflows"
-              git push
-              git pull
-              git rebase origin/main
-              git push --force-with-lease
-            else
-              echo "No changes detected by git diff --cached"
-            fi
-            cd ..
-            rm -rf cloned
+          REPOSITORIES=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" https://api.github.com/user/repos | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
+          echo "::set-output name=repos::$REPOSITORIES"
+
+      - name: Process each repository
+        id: process-repos
+        run: |
+          ERRORS=""
+          for repo in ${{ steps.get-repos.outputs.repos }}; do
+            echo "Processing repository $repo"
+            (
+              set -e
+              trap 'ERROR="Erro ao processar o repositório $repo"; ERRORS="$ERRORS\n$ERROR"; exit 1' ERR
+
+              echo "Cloning repository $repo"
+              git clone $repo cloned -b develop
+
+              if [ ! -d "cloned/.github/workflows" ]; then
+                echo "Creating .github/workflows directory in cloned repository"
+                mkdir -p cloned/.github/workflows
+              fi
+
+              echo "Copying workflows to cloned repository"
+              cp -r .github/actions/* cloned/.github/workflows
+
+              cd cloned
+              git add .
+              git status
+              if ! git diff --cached --quiet --exit-code; then
+                echo "Committing and pushing changes to $repo"
+                git commit -m "build(github): bot update repository workflows"
+                git push
+                git pull
+                git rebase origin/main
+                git push --force-with-lease
+              else
+                echo "No changes detected by git diff --cached"
+              fi
+              cd ..
+              rm -rf cloned
             ) || {
-               echo "Falha ao atualizar o repositório $repo"
-               continue
+              echo "Falha ao atualizar o repositório $repo"
+              ERRORS="$ERRORS\nFalha ao atualizar o repositório $repo"
+              continue
             }
           done
+          echo "::set-output name=errors::$ERRORS"
+
+      - name: Display errors
+        if: steps.process-repos.outputs.errors != ''
+        run: |
+          echo -e "Os seguintes erros ocorreram durante o processamento dos repositórios:\n${{ steps.process-repos.outputs.errors }}"
