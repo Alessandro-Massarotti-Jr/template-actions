@@ -41,7 +41,7 @@ jobs:
       - name: Debug Repos Output
         run: echo "Repos Output ${{ steps.get-repos.outputs }}"
 
-  update-repos:
+  update-repo:
     needs: get-repos
     runs-on: ubuntu-latest
     strategy:
@@ -63,16 +63,14 @@ jobs:
           git config --global user.email "actions@github.com"
           git config --global user.name "bot"
 
+      - name: start
+        run: echo "Iniciando processo do repositorio ${{ matrix.repo }}"
+
       - name: Process repository
         id: process-repo
         run: |
           repo=${{ matrix.repo }}
-          ERRORS=""
           echo "Processing repository $repo"
-          (
-            set -e
-            trap 'ERROR="Erro ao processar o repositório $repo"; ERRORS="$ERRORS\n$ERROR"; exit 1' ERR
-
             echo "Cloning repository $repo"
             git clone $repo cloned -b develop
 
@@ -99,14 +97,7 @@ jobs:
             fi
             cd ..
             rm -rf cloned
-          ) || {
-            echo "Falha ao atualizar o repositório $repo"
-            ERRORS="$ERRORS\nFalha ao atualizar o repositório $repo"
-            echo "$ERRORS" >> "$GITHUB_ENV"
-            continue
-          }
 
       - name: Display errors
-        if: ${{ env.ERRORS }}
-        run: |
-          echo -e "Os seguintes erros ocorreram durante o processamento dos repositórios:\n${{ env.ERRORS }}"
+        if: ${{ failure() && steps.process-repo.conclusion == 'failure' }}
+        run: echo "Erro ao processar ${{ matrix.repo }}"
