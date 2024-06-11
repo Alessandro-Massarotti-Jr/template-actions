@@ -31,18 +31,26 @@ jobs:
         run: |
           PAGE=1
           PER_PAGE=100
+          TOTAL_REPOSITORIES=0
           REPOSITORIES=""
           while true; do
-            REPOS_PAGE=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" "https://api.github.com/user/repos?per_page=$PER_PAGE&page=$PAGE" | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
+            RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" "https://api.github.com/user/repos?per_page=$PER_PAGE&page=$PAGE")
+            LINK_HEADER=$(echo "$RESPONSE" | grep -i '^link:')
+            if [ -z "$LINK_HEADER" ]; then
+              break
+            fi
+            REPOS_PAGE=$(echo "$RESPONSE" | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
             if [ -z "$REPOS_PAGE" ]; then
               break
             fi
             REPOSITORIES="$REPOSITORIES$REPOS_PAGE"$'\n'
             PAGE=$((PAGE+1))
           done
-          REPOSITORIES_JSON=$(echo "$REPOSITORIES" | jq -cRs 'split("\n") | .[:-1]')
-          echo "repos=$REPOSITORIES_JSON" >> "$GITHUB_ENV"
-          echo "repos=$REPOSITORIES_JSON" >> "$GITHUB_OUTPUT"
+          if [ -n "$REPOSITORIES" ]; then
+            REPOSITORIES_JSON=$(echo "$REPOSITORIES" | jq -cRs 'split("\n") | .[:-1]')
+            echo "repos=$REPOSITORIES_JSON" >> "$GITHUB_ENV"
+            echo "repos=$REPOSITORIES_JSON" >> "$GITHUB_OUTPUT"
+          fi
 
   update-repo:
     needs: get-repos
