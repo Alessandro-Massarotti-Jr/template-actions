@@ -111,14 +111,22 @@ jobs:
             local file=$1
             local repos_allowed=$(echo $config | jq -r --arg file $file '.[$file].reposAllowed')
             local repos_blocked=$(echo $config | jq -r --arg file $file '.[$file].reposBlocked')
-
             if [[ "$repos_allowed" == "*" || "$repos_allowed" == *"$repo_name"* ]]; then
-              if [[ "$repos_blocked" == *"$repo_name"* ]]; then
+              if ! echo "$repos_blocked" | grep -q "\<$repo_name\>"; then
+                if [ "$repos_allowed" == "*" ]; then
+                  echo "Copying $file to $repo_name"
+                  cp ".github/actions/$file.yaml" "cloned/.github/workflows"
+                  break
+                else
+                  if echo "$repos_allowed" | grep -q "\<$repo_name\>"; then
+                    echo "Copying $file to $repo_name"
+                    cp ".github/actions/$file.yaml" "cloned/.github/workflows"
+                    break
+                  fi
+                fi
+              else
                 echo "$repo_name is blocked for $file, skipping..."
-                return
               fi
-              echo "Copying $file to $repo_name"
-              cp ".github/actions/$file.yaml" "cloned/.github/workflows"
             fi
           }
           git clone $repo cloned -b develop
