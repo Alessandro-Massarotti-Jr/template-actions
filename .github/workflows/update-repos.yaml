@@ -46,7 +46,7 @@ jobs:
             PAGE=$((PAGE+1))
           done
           if [ -n "$REPOSITORIES" ]; then
-            REPOSITORIES_JSON=$(echo "$REPOSITORIES" | jq -cRs 'split("\n") | .[:-1]')
+            REPOSITORIES_JSON=$(echo "$REPOSITORIES" | jq -cRs 'split("\n") | map(select(length > 0))')
             echo "repos=$REPOSITORIES_JSON" >> "$GITHUB_ENV"
             echo "repos=$REPOSITORIES_JSON" >> "$GITHUB_OUTPUT"
           fi
