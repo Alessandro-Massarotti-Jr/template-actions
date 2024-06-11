@@ -85,13 +85,25 @@ jobs:
           for file in $(echo $config | jq -r 'keys[]'); do
             repos_allowed=$(echo $config | jq -r --arg file $file '.[$file].reposAllowed')
             repos_blocked=$(echo $config | jq -r --arg file $file '.[$file].reposBlocked')
-            repos_allowed_clean=$(echo $repos_allowed | sed 's/[][]//g' | tr -d '"')
-            repos_blocked_clean=$(echo $repos_blocked | sed 's/[][]//g' | tr -d '"')
-            if [[ "$repos_allowed_clean" == "*" || "$repos_allowed_clean" == *"$repo_name"* ]]; then
-              if [[ "$repos_blocked_clean" == *"$repo_name"* ]]; then
-                echo "$repo_name is blocked for $file, skipping..."
-                continue
-              fi
+            isAllowed=false
+            isBlocked=false
+            if [ "$repos_allowed" == "*" ]; then
+              isAllowed=true
+            else
+              for allowed_repo in "${repos_allowed[@]}"; do
+                if [ "$allowed_repo" == "$repo_name" ]; then
+                  repo_allowed=true
+                  break
+                fi
+              done
+            fi
+            for blocked_repo in "${repos_blocked[@]}"; do
+                if [ "$blocked_repo" == "$repo_name" ]; then
+                  isBlocked=true
+                  break
+                fi
+            done
+            if [ "$isAllowed" == true ] && [ "$isBlocked" == false ]; then
               echo "hasAvailableActions=true" >> $GITHUB_ENV
               break
             fi
@@ -106,11 +118,9 @@ jobs:
             local file=$1
             local repos_allowed=$(echo $config | jq -r --arg file $file '.[$file].reposAllowed')
             local repos_blocked=$(echo $config | jq -r --arg file $file '.[$file].reposBlocked')
-            local repos_allowed_clean=$(echo $repos_allowed | sed 's/[][]//g' | tr -d '"')
-            local repos_blocked_clean=$(echo $repos_blocked | sed 's/[][]//g' | tr -d '"')
 
-            if [[ "$repos_allowed_clean" == "*" || "$repos_allowed_clean" == *"$repo_name"* ]]; then
-              if [[ "$repos_blocked_clean" == *"$repo_name"* ]]; then
+            if [[ "$repos_allowed" == "*" || "$repos_allowed" == *"$repo_name"* ]]; then
+              if [[ "$repos_blocked" == *"$repo_name"* ]]; then
                 echo "$repo_name is blocked for $file, skipping..."
                 return
               fi
