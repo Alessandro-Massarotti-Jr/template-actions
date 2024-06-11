@@ -35,8 +35,7 @@ jobs:
           REPOSITORIES=""
           while true; do
             RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" "https://api.github.com/user/repos?per_page=$PER_PAGE&page=$PAGE")
-            LINK_HEADER=$(echo "$RESPONSE" | grep -i '^link:')
-            if [ -z "$LINK_HEADER" ]; then
+            if [ "$RESPONSE" == '[]' ]; then
               break
             fi
             REPOS_PAGE=$(echo "$RESPONSE" | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
