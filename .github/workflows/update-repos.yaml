@@ -100,30 +100,38 @@ jobs:
         id: process-repo
         run: |
           repo=${{ matrix.repo }}
-          echo "Processing repository $repo"
-            echo "Cloning repository $repo"
-            git clone $repo cloned -b develop
+          process_file() {
+            local file=$1
+            local repos_allowed=$(echo $config | jq -r --arg file $file '.[$file].reposAllowed')
+            local repos_blocked=$(echo $config | jq -r --arg file $file '.[$file].reposBlocked')
 
-            if [ ! -d "cloned/.github/workflows" ]; then
-              echo "Creating .github/workflows directory in cloned repository"
-              mkdir -p cloned/.github/workflows
+            if [[ "$repos_allowed" == "*" || "$repos_allowed" == *"$repo_name"* ]]; then
+              if [[ "$repos_blocked" == *"$repo_name"* ]]; then
+                echo "$repo_name is blocked for $file, skipping..."
+                return
+              fi
+              echo "Copying $file to $repo_name"
+              cp ".github/actions/$file" "cloned/.github/workflows"
             fi
-
-            echo "Copying workflows to cloned repository"
-            cp -r .github/actions/* cloned/.github/workflows
-
-            cd cloned
-            git add .
-            git status
-            if ! git diff --cached --quiet --exit-code; then
-              echo "Committing and pushing changes to $repo"
-              git commit -m "build(github): bot update repository workflows"
-              git push
-              git pull
-              git rebase origin/main
-              git push --force-with-lease
-            else
-              echo "No changes detected by git diff --cached"
-            fi
+          }
+          git clone $repo cloned -b develop
+          rm -rf cloned/.github/workflows
+          mkdir -p cloned/.github/workflows
+          for file in $(echo $config | jq -r 'keys[]'); do
+            process_file $file
+          done
+          cd cloned
+          git add .
+          git status
+          if ! git diff --cached --quiet --exit-code; then
+            echo "Committing and pushing changes to $repo"
+            git commit -m "build(github): bot update repository workflows"
+            git push
+            git pull
+            git rebase origin/main
+            git push --force-with-lease
+          else
+            echo "No changes detected by git diff --cached"
+          fi
             cd ..
             rm -rf cloned
