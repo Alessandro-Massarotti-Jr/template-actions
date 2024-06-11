@@ -88,7 +88,7 @@ jobs:
             if [[ "$repos_allowed" == "*" || "$repos_allowed" == *"$repo_name"* ]]; then
               if [[ "$repos_blocked" == *"$repo_name"* ]]; then
                 echo "$repo_name is blocked for $file, skipping..."
-                return
+                continue
               fi
               echo "hasAvailableActions=true" >> $GITHUB_ENV
             fi
