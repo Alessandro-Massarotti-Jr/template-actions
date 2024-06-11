@@ -85,8 +85,8 @@ jobs:
           for file in $(echo "$config" | jq -r 'keys[]'); do
             repos_allowed=$(echo "$config" | jq -r --arg file "$file" '.[$file].reposAllowed')
             repos_blocked=$(echo "$config" | jq -r --arg file "$file" '.[$file].reposBlocked')
-            if [[ "$repos_allowed" == "*" || $(echo "$repos_allowed" | jq --arg repoName "$repo_name" 'contains([$repoName])') == "true" ]]; then
-              if ! echo "$repos_blocked" | jq -e --arg repoName "$repo_name" 'contains([$repoName])' > /dev/null; then
+            if [[ "$repos_allowed" == "*" || $(echo "$repos_allowed" | jq --arg repoName "$repo_name" 'index([$repoName])') != "null" ]]; then
+              if ! echo "$repos_blocked" | jq -e --arg repoName "$repo_name" 'index([$repoName])' > /dev/null; then
                 echo "hasAvailableActions=true" >> $GITHUB_ENV
                 break
               else
@@ -104,8 +104,8 @@ jobs:
             local file=$1
             local repos_allowed=$(echo "$config" | jq -r --arg file "$file" '.[$file].reposAllowed')
             local repos_blocked=$(echo "$config" | jq -r --arg file "$file" '.[$file].reposBlocked')
-            if [[ "$repos_allowed" == "*" || $(echo "$repos_allowed" | jq --arg repoName "$repo_name" 'contains([$repoName])') == "true" ]]; then
-              if ! echo "$repos_blocked" | jq -e --arg repoName "$repo_name" 'contains([$repoName])' > /dev/null; then
+            if [[ "$repos_allowed" == "*" || $(echo "$repos_allowed" | jq --arg repoName "$repo_name" 'index([$repoName])') != "null" ]]; then
+              if ! echo "$repos_blocked" | jq -e --arg repoName "$repo_name" 'index([$repoName])' > /dev/null; then
                 echo "Copying $file to $repo_name"
                 cp ".github/actions/$file.yaml" "cloned/.github/workflows"
               else
