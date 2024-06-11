@@ -70,7 +70,7 @@ jobs:
       - name: Load config file
         id: load-config
         run: |
-          CONFIG=$(cat ./config.json)
+          CONFIG=$(jq -c . < ./config.json)
           echo "config=$CONFIG" >> $GITHUB_ENV
 
       - name: Get Repository Name
