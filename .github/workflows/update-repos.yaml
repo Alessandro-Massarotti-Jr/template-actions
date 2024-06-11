@@ -91,11 +91,12 @@ jobs:
                 continue
               fi
               echo "hasAvailableActions=true" >> $GITHUB_ENV
+              break
             fi
           done
 
       - name: Process repository
-        if: ${{ github.env.hasAvailableActions == 'true' }}
+        if: github.env.hasAvailableActions == 'true'
         id: process-repo
         run: |
           repo=${{ matrix.repo }}
