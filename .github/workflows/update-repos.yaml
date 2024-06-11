@@ -82,20 +82,13 @@ jobs:
       - name: Verify if has available actions
         run: |
           echo "hasAvailableActions=false" >> $GITHUB_ENV
-          for file in $(echo $config | jq -r 'keys[]'); do
-            repos_allowed=$(echo $config | jq -r --arg file $file '.[$file].reposAllowed')
-            repos_blocked=$(echo $config | jq -r --arg file $file '.[$file].reposBlocked')
-            if [[ "$repos_allowed" == "*" || "$repos_allowed" == *"$repo_name"* ]]; then
-              if ! echo "$repos_blocked" | grep -q "\<$repo_name\>"; then
-                if [ "$repos_allowed" == "*" ]; then
-                  echo "hasAvailableActions=true" >> $GITHUB_ENV
-                  break
-                else
-                  if echo "$repos_allowed" | grep -q "\<$repo_name\>"; then
-                    echo "hasAvailableActions=true" >> $GITHUB_ENV
-                    break
-                  fi
-                fi
+          for file in $(echo "$config" | jq -r 'keys[]'); do
+            repos_allowed=$(echo "$config" | jq -r --arg file "$file" '.[$file].reposAllowed')
+            repos_blocked=$(echo "$config" | jq -r --arg file "$file" '.[$file].reposBlocked')
+            if [[ "$repos_allowed" == "*" || $(echo "$repos_allowed" | jq --arg repoName "$repo_name" 'contains([$repoName])') == "true" ]]; then
+              if ! echo "$repos_blocked" | jq -e --arg repoName "$repo_name" 'contains([$repoName])') > /dev/null; then
+                echo "hasAvailableActions=true" >> $GITHUB_ENV
+                break
               else
                 echo "$repo_name is blocked for $file, skipping..."
               fi
@@ -109,21 +102,12 @@ jobs:
           repo=${{ matrix.repo }}
           process_file() {
             local file=$1
-            local repos_allowed=$(echo $config | jq -r --arg file $file '.[$file].reposAllowed')
-            local repos_blocked=$(echo $config | jq -r --arg file $file '.[$file].reposBlocked')
-            if [[ "$repos_allowed" == "*" || "$repos_allowed" == *"$repo_name"* ]]; then
-              if ! echo "$repos_blocked" | grep -q "\<$repo_name\>"; then
-                if [ "$repos_allowed" == "*" ]; then
-                  echo "Copying $file to $repo_name"
-                  cp ".github/actions/$file.yaml" "cloned/.github/workflows"
-                  break
-                else
-                  if echo "$repos_allowed" | grep -q "\<$repo_name\>"; then
-                    echo "Copying $file to $repo_name"
-                    cp ".github/actions/$file.yaml" "cloned/.github/workflows"
-                    break
-                  fi
-                fi
+            local repos_allowed=$(echo "$config" | jq -r --arg file "$file" '.[$file].reposAllowed')
+            local repos_blocked=$(echo "$config" | jq -r --arg file "$file" '.[$file].reposBlocked')
+            if [[ "$repos_allowed" == "*" || $(echo "$repos_allowed" | jq --arg repoName "$repo_name" 'contains([$repoName])') == "true" ]]; then
+              if ! echo "$repos_blocked" | jq -e --arg repoName "$repo_name" 'contains([$repoName])' > /dev/null; then
+                echo "Copying $file to $repo_name"
+                cp ".github/actions/$file.yaml" "cloned/.github/workflows"
               else
                 echo "$repo_name is blocked for $file, skipping..."
               fi
