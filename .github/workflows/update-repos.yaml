@@ -95,12 +95,6 @@ jobs:
             fi
           done
 
-      - name: teste-1
-        run: echo ${{ github.env.hasAvailableActions }}
-
-      - name: teste-2
-        run: echo ${{ env.hasAvailableActions }}
-
       - name: Process repository
         if: env.hasAvailableActions == 'true'
         id: process-repo
