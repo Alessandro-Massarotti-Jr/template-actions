@@ -83,9 +83,8 @@ jobs:
         run: |
           echo "hasAvailableActions=false" >> $GITHUB_ENV
           for file in $(echo $config | jq -r 'keys[]'); do
-            local file=$1
-            local repos_allowed=$(echo $config | jq -r --arg file $file '.[$file].reposAllowed')
-            local repos_blocked=$(echo $config | jq -r --arg file $file '.[$file].reposBlocked')
+            repos_allowed=$(echo $config | jq -r --arg file $file '.[$file].reposAllowed')
+            repos_blocked=$(echo $config | jq -r --arg file $file '.[$file].reposBlocked')
             if [[ "$repos_allowed" == "*" || "$repos_allowed" == *"$repo_name"* ]]; then
               if [[ "$repos_blocked" == *"$repo_name"* ]]; then
                 echo "$repo_name is blocked for $file, skipping..."
