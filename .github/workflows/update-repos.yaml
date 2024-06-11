@@ -95,8 +95,14 @@ jobs:
             fi
           done
 
+      - name: teste-1
+        run: echo ${{ github.env.hasAvailableActions }}
+
+      - name: teste-2
+        run: echo ${{ github.env }}
+
       - name: Process repository
-        if: github.env.hasAvailableActions == 'true'
+        if: ${{ github.env.hasAvailableActions == true }}
         id: process-repo
         run: |
           repo=${{ matrix.repo }}
