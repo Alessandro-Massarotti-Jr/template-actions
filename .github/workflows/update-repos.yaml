@@ -79,13 +79,24 @@ jobs:
           repo_name=$(echo ${{ matrix.repo }} | awk -F'[:/.]' '{print $(NF-1)}')
           echo "repo_name=$repo_name" >> $GITHUB_ENV
 
-      - name: teste-1
-        run: echo ${{ github.env.repo_name}}
-
-      - name: teste-2
-        run: echo ${{ github.env.config}}
+      - name: Verify if has available actions
+        run: |
+          echo "hasAvailableActions=false" >> $GITHUB_ENV
+          for file in $(echo $config | jq -r 'keys[]'); do
+            local file=$1
+            local repos_allowed=$(echo $config | jq -r --arg file $file '.[$file].reposAllowed')
+            local repos_blocked=$(echo $config | jq -r --arg file $file '.[$file].reposBlocked')
+            if [[ "$repos_allowed" == "*" || "$repos_allowed" == *"$repo_name"* ]]; then
+              if [[ "$repos_blocked" == *"$repo_name"* ]]; then
+                echo "$repo_name is blocked for $file, skipping..."
+                return
+              fi
+              echo "hasAvailableActions=true" >> $GITHUB_ENV
+            fi
+          done
 
       - name: Process repository
+        if: ${{ github.env.hasAvailableActions == 'true' }}
         id: process-repo
         run: |
           repo=${{ matrix.repo }}
