@@ -111,7 +111,7 @@ jobs:
                 return
               fi
               echo "Copying $file to $repo_name"
-              cp ".github/actions/$file" "cloned/.github/workflows"
+              cp ".github/actions/$file.yaml" "cloned/.github/workflows"
             fi
           }
           git clone $repo cloned -b develop
