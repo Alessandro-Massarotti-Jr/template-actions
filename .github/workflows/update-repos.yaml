@@ -86,12 +86,19 @@ jobs:
             repos_allowed=$(echo $config | jq -r --arg file $file '.[$file].reposAllowed')
             repos_blocked=$(echo $config | jq -r --arg file $file '.[$file].reposBlocked')
             if [[ "$repos_allowed" == "*" || "$repos_allowed" == *"$repo_name"* ]]; then
-              if [[ "$repos_blocked" == *"$repo_name"* ]]; then
+              if ! echo "$repos_blocked" | grep -q "\<$repo_name\>"; then
+                if [ "$repos_allowed" == "*" ]; then
+                  echo "hasAvailableActions=true" >> $GITHUB_ENV
+                  break
+                else
+                  if echo "$repos_allowed" | grep -q "\<$repo_name\>"; then
+                    echo "hasAvailableActions=true" >> $GITHUB_ENV
+                    break
+                  fi
+                fi
+              else
                 echo "$repo_name is blocked for $file, skipping..."
-                continue
               fi
-              echo "hasAvailableActions=true" >> $GITHUB_ENV
-              break
             fi
           done
 
