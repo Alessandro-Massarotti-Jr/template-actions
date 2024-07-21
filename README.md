@@ -11,18 +11,12 @@ Template actions for github projects, this repository has a feture to add action
 - [template-actions](#template-actions)
   - [Sumary](#sumary)
   - [Actions](#actions)
-    - [pull-request-openner](#pull-request-openner)
     - [release](#release)
     - [validations](#validations)
 
 ## Actions
 
 This session is for talk about what each action on this repository do
-
-### pull-request-openner
-
-This action open a pull request to main branch when pull request to develop was closed.
-See the file here: [pull-request-openner](./.github/actions/pull-request-openner.yaml)
 
 ### release
 This action release a new version each time main branch has new pushs
