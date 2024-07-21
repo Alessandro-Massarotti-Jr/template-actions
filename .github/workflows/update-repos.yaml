@@ -26,7 +26,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
-      - name: Get template-project repositories
+      - name: Get repositories
         id: get-repos
         run: |
           PAGE=1
@@ -34,7 +34,7 @@ jobs:
           TOTAL_REPOSITORIES=0
           REPOSITORIES=""
           while true; do
-            RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" "https://api.github.com/user/repos?per_page=$PER_PAGE&page=$PAGE")
+            RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GIT_TOKEN }}" "https://api.github.com/user/repos?per_page=$PER_PAGE&page=$PAGE&affiliation=owner")
             if [ "$RESPONSE" == '[]' ]; then
               break
             fi
