@@ -1,21 +1,14 @@
 {
     "validations": {
-        "reposAllowed": "*",
-        "reposBlocked": [
-            "template-project-3"
-        ]
+        "reposAllowed": [
+            "template-project"
+        ],
+        "reposBlocked": []
     },
     "release": {
         "reposAllowed": [
             "template-project"
         ],
         "reposBlocked": []
-    },
-    "pull-request-openner": {
-        "reposAllowed": "*",
-        "reposBlocked": [
-            "template-project-2",
-            "template-project-3"
-        ]
     }
 }

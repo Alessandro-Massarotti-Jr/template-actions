@@ -38,7 +38,7 @@ jobs:
             if [ "$RESPONSE" == '[]' ]; then
               break
             fi
-            REPOS_PAGE=$(echo "$RESPONSE" | jq -r '.[] | select(.name | contains("template-project")) | .ssh_url')
+            REPOS_PAGE=$(echo "$RESPONSE" | jq -r '.[] | select(.name) | .ssh_url')
             if [ -z "$REPOS_PAGE" ]; then
               break
             fi
